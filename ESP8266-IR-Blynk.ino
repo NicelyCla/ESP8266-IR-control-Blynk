@@ -21,7 +21,7 @@ uint16_t rawData[89] = {4584, 4396,  652, 476,  650, 1596,  660, 470,  658, 1590
 4580, 4402,  656, 474,  654, 1592,  652, 478,  650, 1598,  658, 472,  
 656, 1592,  652, 476,  652};  // UNKNOWN 52A3E788
 
-String days[] = {"Domenica", "Lunedì", "Martedì", "Mercoledì", "Venerdì", "Sabato", "Domenica"};
+String days[] = {"Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì" ,"Venerdì", "Sabato", "Domenica"};
 int programmaOrario[3];
 
 // Comment this out to disable prints and save space
@@ -296,7 +296,6 @@ void setup()
 {
   // Debug console
   Serial.begin(115200);
-  EEPROM.begin(512);
 
   WiFi.begin(ssid,pass);
   Blynk.begin(auth, ssid, pass);
@@ -314,7 +313,7 @@ void setup()
 int controllo = 1;
 void loop()
 {
-  
+  EEPROM.begin(512);
   EEPROM.get(0, sStoredData);
 
 
@@ -322,41 +321,42 @@ void loop()
   struct tm* p_tm = localtime(&now);
   
   if (sStoredData.giornoSettimana[p_tm->tm_wday]){
-    //Serial.println("oggi è programmata una pulizia");
+
+    if (sStoredData.timerAspirapolvere){
+      //Serial.println(sStoredData.giornoSettimana[p_tm->tm_wday]);
+      Serial.println("");
+      Serial.print("oggi è ");
+      Serial.print(days[p_tm->tm_wday]);
+      Serial.print(" ed è programmata una pulizia alle: ");
+      Serial.print(sStoredData.ora);
+      Serial.print(":");
+      Serial.println(sStoredData.minuti);
+      Serial.println("");
+    }
 
     if(p_tm->tm_hour == sStoredData.ora && p_tm->tm_min == sStoredData.minuti){
       if (controllo && sStoredData.timerAspirapolvere){
         irsend.sendRaw(rawData, 89, 38);  // Send a raw data capture at 38kHz.
         controllo = 0;
+        Serial.println("Ho appena avviato l'aspirapolvere come da scheduling!");
       }
     }
     else {
       controllo = 1;
     }
-    /*
-    Serial.println(sStoredData.giornoSettimana[p_tm->tm_wday]);
-    Serial.println("oggi è programmata una pulizia");
-    Serial.println(days[p_tm->tm_wday]);
-    Serial.print("alle: ");
-    Serial.print(sStoredData.ora);
-    Serial.print(":");
-    Serial.println(sStoredData.minuti);
-    */
-   
-
   }
   else{
-    //Serial.println("oggi non è programmata una pulizia");
-
     /*
     Serial.println(sStoredData.giornoSettimana[p_tm->tm_wday]);
     Serial.println("oggi non è programmata una pulizia");
     Serial.println(days[p_tm->tm_wday]);
     */
-
   }
   
-  /*
+  Serial.println("");
+  Serial.println("-----------------------------------");
+
+  Serial.println("Orario attuale:");
   Serial.print(p_tm->tm_mday);
   Serial.print("/");
   Serial.print(p_tm->tm_mon + 1);
@@ -369,12 +369,16 @@ void loop()
   Serial.print(":");
   Serial.print(p_tm->tm_min);
   Serial.print(":");
-  Serial.println(p_tm->tm_sec);
-  Serial.println("oggi è:");
+  Serial.print(p_tm->tm_sec);
+  Serial.print(", oggi è: ");
   Serial.println(days[p_tm->tm_wday]);
+  Serial.println("-----------------------------------");
+
   
   //delay(1000);
-  */
+  
   
   Blynk.run();
+  EEPROM.end();
+
 }
