@@ -1,7 +1,7 @@
 # ESP8266-IR-control-Blynk
 I used an esp8266 to control the lights and the vacuum cleaner (both are not natively home automation) in a domotic way via an app.<br />
 The app was created by old version of Blynk, I recommend using the old version while it lasts, if you are lazy like me.<br />
-Control takes place via infrared. Basically, a simple wireless IR remote control.<br /
+Control takes place via infrared. Basically, a simple wireless IR remote control.<br>
 ## Image
 <img src="wireless_IR_control.jpg" width="340"><br>
 It is necessary to clone the infrared signal, I used the TSOP31238 sensor to acquire the signal.<br />
